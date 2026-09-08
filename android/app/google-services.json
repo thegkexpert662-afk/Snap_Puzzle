@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "753080154054",
+    "project_id": "snap-pazzel",
+    "storage_bucket": "snap-pazzel.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:753080154054:android:46e80705ef821b3b3464c7",
+        "android_client_info": {
+          "package_name": "com.kopersay.snappuzzle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "753080154054-p770c9cq9i3586qatca9ij82862ad896.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kopersay.snappuzzle",
+            "certificate_hash": "cf0c395119b974faad52706365cca098e4ec01fb"
+          }
+        },
+        {
+          "client_id": "753080154054-ocqidlmiornitmhb5bs1svsv9e0b7vjp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCysSNUFxJf65vyiZYxoJtXJeBv_Ig1CEE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "753080154054-ocqidlmiornitmhb5bs1svsv9e0b7vjp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "753080154054-7d02qd54b1ucdkfighv0jrr5v6vtii6o.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.snappazzel.admin.snapPazzelAdmin"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:753080154054:android:8c4c0769e21f58cc3464c7",
+        "android_client_info": {
+          "package_name": "com.snappazzel.admin.snap_pazzel_admin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "753080154054-ocqidlmiornitmhb5bs1svsv9e0b7vjp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCysSNUFxJf65vyiZYxoJtXJeBv_Ig1CEE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "753080154054-ocqidlmiornitmhb5bs1svsv9e0b7vjp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "753080154054-7d02qd54b1ucdkfighv0jrr5v6vtii6o.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.snappazzel.admin.snapPazzelAdmin"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
