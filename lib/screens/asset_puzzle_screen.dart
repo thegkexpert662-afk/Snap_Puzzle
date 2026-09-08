@@ -546,6 +546,7 @@ class _AssetPuzzleScreenState extends State<AssetPuzzleScreen> {
         });
       }
       await SavedPuzzleService.clear();
+      await SavedPuzzleService.clear();
       print("Sending XP = $xpReward");
       print("Sending Level = $currentLevel");
       Navigator.push(
