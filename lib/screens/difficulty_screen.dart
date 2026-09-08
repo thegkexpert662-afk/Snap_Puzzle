@@ -107,7 +107,39 @@ class _CircleButton extends StatelessWidget {
 
 class _DifficultyBackground extends StatelessWidget {
   const _DifficultyBackground();
+
   @override
-  Widget build(BuildContext context) => Positioned.fill(child: DecoratedBox(decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF082D6A), Color(0xFF061D49), Color(0xFF03132F)])), child: Stack(children: [Positioned(top: -80, right: -90, child: _glow(230, const Color(0xFF008BFF))), Positioned(top: 410, left: -120, child: _glow(250, const Color(0xFF1455D9))), Positioned(bottom: -90, right: -80, child: _glow(240, const Color(0xFF6D2AFF)))]));
-  static Widget _glow(double size, Color color) => IgnorePointer(child: Container(width: size, height: size, decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: color.withOpacity(.23), blurRadius: 100, spreadRadius: 35)])));
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF082D6A), Color(0xFF061D49), Color(0xFF03132F)],
+          ),
+        ),
+        child: Stack(
+          children: [
+            Positioned(top: -80, right: -90, child: _glow(230, const Color(0xFF008BFF))),
+            Positioned(top: 410, left: -120, child: _glow(250, const Color(0xFF1455D9))),
+            Positioned(bottom: -90, right: -80, child: _glow(240, const Color(0xFF6D2AFF))),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Widget _glow(double size, Color color) {
+    return IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [BoxShadow(color: color.withOpacity(.23), blurRadius: 100, spreadRadius: 35)],
+        ),
+      ),
+    );
+  }
 }
