@@ -30,6 +30,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   RewardedAd? rewardedAd;
   bool rewardAdReady = false;
   static const int maxDailyAds = 10;
+  static const List<String> _avatarAssets = [
+    'assets/pr_img/avatar1.png',
+    'assets/pr_img/avatar2.png',
+    'assets/pr_img/avatar3.png',
+    'assets/pr_img/avatar4.png',
+  ];
+  int _selectedAvatarIndex = 0;
 
   @override
   void initState() {
@@ -38,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _setOnline(true);
     checkBanStatus();
     loadCoins();
+    loadProfileAvatar();
     loadDailyAds();
     checkAndResetDailyAds();
     loadRewardedAd();
@@ -83,6 +91,67 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final doc = await FirebaseFirestore.instance.collection('players').doc(user.uid).get();
     if (!doc.exists || !mounted) return;
     setState(() => coins = (doc.data()?['coins'] as num?)?.toInt() ?? 0);
+  }
+
+  Future<void> loadProfileAvatar() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final doc = await FirebaseFirestore.instance.collection('players').doc(user.uid).get();
+    if (!doc.exists || !mounted) return;
+    final index = (doc.data()?['profileAvatar'] as num?)?.toInt() ?? 0;
+    if (index >= 0 && index < _avatarAssets.length) {
+      setState(() => _selectedAvatarIndex = index);
+    }
+  }
+
+  Future<void> _selectAvatar(int index) async {
+    setState(() => _selectedAvatarIndex = index);
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance.collection('players').doc(user.uid).set(
+        {'profileAvatar': index},
+        SetOptions(merge: true),
+      );
+    }
+    if (mounted) Navigator.pop(context);
+  }
+
+  void _showAvatarPicker() {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF0A2454),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Choose Profile Image', style: TextStyle(color: Colors.white, fontSize: 21, fontWeight: FontWeight.w900)),
+              const SizedBox(height: 6),
+              const Text('Select one of your profile avatars', style: TextStyle(color: Colors.white70, fontSize: 13)),
+              const SizedBox(height: 18),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _avatarAssets.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, crossAxisSpacing: 12, mainAxisSpacing: 12),
+                itemBuilder: (_, index) => GestureDetector(
+                  onTap: () => _selectAvatar(index),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: _selectedAvatarIndex == index ? const Color(0xFF59D7FF) : Colors.white24, width: _selectedAvatarIndex == index ? 4 : 2),
+                    ),
+                    child: ClipOval(child: Image.asset(_avatarAssets[index], fit: BoxFit.cover)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> loadDailyAds() async {
@@ -267,16 +336,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget _buildHeader() {
     return Row(
       children: [
-        Container(
-          width: 58,
-          height: 58,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 3),
-            gradient: const LinearGradient(colors: [Color(0xFF18AFFF), Color(0xFF1364D9)]),
-            boxShadow: const [BoxShadow(color: Color(0x5500B7FF), blurRadius: 14, spreadRadius: 2)],
+        GestureDetector(
+          onTap: _showAvatarPicker,
+          child: Container(
+            width: 58,
+            height: 58,
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 3),
+              gradient: const LinearGradient(colors: [Color(0xFF18AFFF), Color(0xFF1364D9)]),
+              boxShadow: const [BoxShadow(color: Color(0x5500B7FF), blurRadius: 14, spreadRadius: 2)],
+            ),
+            child: ClipOval(child: Image.asset(_avatarAssets[_selectedAvatarIndex], fit: BoxFit.cover)),
           ),
-          child: const Icon(Icons.person, color: Colors.white, size: 36),
         ),
         const SizedBox(width: 12),
         const Spacer(),

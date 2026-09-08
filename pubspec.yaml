@@ -71,6 +71,7 @@ flutter:
     - assets/images/
     - assets/puzzles/
     - assets/sounds/
+    - assets/pr_img/
 
 flutter_launcher_icons:
   android: true
