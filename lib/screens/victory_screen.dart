@@ -20,6 +20,19 @@ class VictoryScreen extends StatelessWidget {
     return 1;
   }
 
+  int _gridForLevel(int level) {
+    if (level <= 10) return 4;
+    if (level <= 40) return 5;
+    if (level <= 60) return 6;
+    if (level <= 75) return 7;
+    return 8;
+  }
+
+  void _nextPuzzle() {
+    GlobalPuzzleService.currentGridSize = _gridForLevel(currentLevel);
+    onNextPuzzle();
+  }
+
   void _playAgain(BuildContext context) {
     final assetPath = GlobalPuzzleService.currentPuzzlePath;
     if (assetPath == null) return;
@@ -53,7 +66,7 @@ class VictoryScreen extends StatelessWidget {
               const SizedBox(height: 20),
               Container(width: double.infinity, padding: const EdgeInsets.fromLTRB(18, 18, 18, 8), decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF0D3D7E), Color(0xFF061D49)]), borderRadius: BorderRadius.circular(28), border: Border.all(color: const Color(0xFF1979D5), width: 2)), child: Column(children: [_StatRow(Icons.timer_rounded, 'Time', '${seconds}s', const Color(0xFF4DD7FF)), _StatRow(Icons.swap_horiz_rounded, 'Moves', '$moves', const Color(0xFF58E69B)), _StatRow(Icons.monetization_on_rounded, 'Coins', '+$coinReward', const Color(0xFFFFD447)), _StatRow(Icons.stars_rounded, 'XP', '+$xpReward', const Color(0xFFD08BFF)), _StatRow(Icons.workspace_premium_rounded, 'Level', '$currentLevel', const Color(0xFFFF9D55))])),
               const SizedBox(height: 20),
-              _ActionButton(label: 'Next Puzzle', icon: Icons.arrow_forward_rounded, colors: const [Color(0xFF18D890), Color(0xFF008F63)], onTap: onNextPuzzle),
+              _ActionButton(label: 'Next Puzzle', icon: Icons.arrow_forward_rounded, colors: const [Color(0xFF18D890), Color(0xFF008F63)], onTap: _nextPuzzle),
               const SizedBox(height: 12),
               _ActionButton(label: 'Play Again', icon: Icons.replay_rounded, colors: const [Color(0xFFFFC62B), Color(0xFFF47B00)], onTap: () => _playAgain(context)),
               const SizedBox(height: 12),
