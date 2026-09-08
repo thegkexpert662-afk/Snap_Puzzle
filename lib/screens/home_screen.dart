@@ -436,7 +436,8 @@ class _HomeScreenState extends State<HomeScreen>
           child: const Icon(Icons.person, color: Colors.white, size: 36),
         ),
         const SizedBox(width: 12),
-       
+        const Spacer(),
+
         _buildCoinPill(),
         const SizedBox(width: 8),
         _roundIconButton(Icons.settings, _openSettings),
