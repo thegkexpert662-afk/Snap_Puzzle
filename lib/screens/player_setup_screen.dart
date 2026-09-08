@@ -142,7 +142,48 @@ class _PlayerSetupScreenState extends State<PlayerSetupScreen> {
 
 class _SetupBackground extends StatelessWidget {
   const _SetupBackground();
+
   @override
-  Widget build(BuildContext context) => Positioned.fill(child: DecoratedBox(decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF082E6D), Color(0xFF061D49), Color(0xFF03132F)])), child: Stack(children: [Positioned(top: -90, right: -90, child: _glow(260, const Color(0xFF008BFF))), Positioned(bottom: -100, left: -100, child: _glow(260, const Color(0xFF522CFF)))]));
-  static Widget _glow(double size, Color color) => IgnorePointer(child: Container(width: size, height: size, decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: color.withOpacity(.23), blurRadius: 110, spreadRadius: 35)])));
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF082E6D),
+              Color(0xFF061D49),
+              Color(0xFF03132F),
+            ],
+          ),
+        ),
+        child: Stack(
+          children: [
+            Positioned(top: -90, right: -90, child: _glow(260, const Color(0xFF008BFF))),
+            Positioned(bottom: -100, left: -100, child: _glow(260, const Color(0xFF522CFF))),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Widget _glow(double size, Color color) {
+    return IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(.23),
+              blurRadius: 110,
+              spreadRadius: 35,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
