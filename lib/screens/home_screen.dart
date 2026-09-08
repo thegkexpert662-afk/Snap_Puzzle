@@ -153,6 +153,45 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     Navigator.push(context, MaterialPageRoute(builder: (_) => DifficultyScreen(imageFile: File(file.path))));
   }
 
+  void _showCreatePuzzleOptions() {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF0A2454),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const Text('Create New Puzzle', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),
+            const SizedBox(height: 6),
+            const Text('Choose how you want to add your photo', style: TextStyle(color: Colors.white70, fontSize: 13)),
+            const SizedBox(height: 16),
+            Row(children: [
+              Expanded(child: _createOptionButton(sheetContext, Icons.camera_alt_rounded, 'Take Photo', () { Navigator.pop(sheetContext); pickImage(ImageSource.camera); })),
+              const SizedBox(width: 12),
+              Expanded(child: _createOptionButton(sheetContext, Icons.photo_library_rounded, 'Gallery', () { Navigator.pop(sheetContext); pickImage(ImageSource.gallery); })),
+            ]),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  Widget _createOptionButton(BuildContext sheetContext, IconData icon, String label, VoidCallback onTap) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white24), gradient: const LinearGradient(colors: [Color(0xFF12396D), Color(0xFF071D47)])),
+          child: Column(children: [Icon(icon, color: Colors.white, size: 30), const SizedBox(height: 7), Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800))]),
+        ),
+      ),
+    );
+  }
+
   void _showMessage(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(SnackBar(content: Text(message)));
@@ -312,7 +351,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       child: Row(children: [
         Container(width: 94, height: 94, decoration: BoxDecoration(color: Colors.white.withOpacity(.15), borderRadius: BorderRadius.circular(22), border: Border.all(color: Colors.white30)), child: const Icon(Icons.add_photo_alternate_rounded, color: Colors.white, size: 54)),
         const SizedBox(width: 15),
-        const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Create', style: TextStyle(color: Colors.white, fontSize: 27, fontWeight: FontWeight.w900)), Text('New Puzzle', style: TextStyle(color: Color(0xFFFFE11A), fontSize: 27, fontWeight: FontWeight.w900), maxLines: 1, overflow: TextOverflow.ellipsis), SizedBox(height: 9), Text('Choose from 86 puzzle photos or use your own photo', style: TextStyle(color: Colors.white, fontSize: 13, height: 1.35), maxLines: 3, overflow: TextOverflow.ellipsis)])),
+        const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Daily', style: TextStyle(color: Colors.white, fontSize: 27, fontWeight: FontWeight.w900)), Text('Challenge', style: TextStyle(color: Color(0xFFFFE11A), fontSize: 27, fontWeight: FontWeight.w900), maxLines: 1, overflow: TextOverflow.ellipsis), SizedBox(height: 9), Text('New puzzle every day. Play with your current level difficulty.', style: TextStyle(color: Colors.white, fontSize: 13, height: 1.35), maxLines: 3, overflow: TextOverflow.ellipsis)])),
         _circleArrow(() {
           SoundService.play('click.mp3');
           Navigator.push(context, MaterialPageRoute(builder: (_) => const AssetImageSelectionScreen()));
@@ -325,7 +364,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     return Column(children: [
       Row(children: [Expanded(child: _smallActionCard(title: 'Take Photo', subtitle: 'Capture & Play', icon: Icons.camera_alt_rounded, gradient: const [Color(0xFFFF45B6), Color(0xFFD60096)], onTap: () => pickImage(ImageSource.camera))), const SizedBox(width: 12), Expanded(child: _smallActionCard(title: 'Choose from Gallery', subtitle: 'Select & Play', icon: Icons.photo_library_rounded, gradient: const [Color(0xFF62F126), Color(0xFF00A94B)], onTap: () => pickImage(ImageSource.gallery)))]),
       const SizedBox(height: 12),
-      Row(children: [Expanded(child: _smallActionCard(title: 'Daily Challenge', subtitle: 'New Puzzle Every Day', icon: Icons.emoji_events_rounded, gradient: const [Color(0xFFFFD32A), Color(0xFFFF7414)], onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AssetImageSelectionScreen())))), const SizedBox(width: 12), Expanded(child: _smallActionCard(title: 'Leaderboard', subtitle: 'See Your Rank', icon: Icons.bar_chart_rounded, gradient: const [Color(0xFF9A49FF), Color(0xFF5A14D8)], onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LeaderboardScreen()))))]),
+      Row(children: [Expanded(child: _smallActionCard(title: 'Create New Puzzle', subtitle: 'Use Camera or Gallery', icon: Icons.add_photo_alternate_rounded, gradient: const [Color(0xFF18B9FF), Color(0xFF0069EA)], onTap: () => _showCreatePuzzleOptions())), const SizedBox(width: 12), Expanded(child: _smallActionCard(title: 'Leaderboard', subtitle: 'See Your Rank', icon: Icons.bar_chart_rounded, gradient: const [Color(0xFF9A49FF), Color(0xFF5A14D8)], onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LeaderboardScreen()))))]),
     ]);
   }
 
