@@ -330,7 +330,36 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Widget _smallActionCard({required String title, required String subtitle, required IconData icon, required List<Color> gradient, required VoidCallback onTap}) {
-    return Material(color: Colors.transparent, child: InkWell(borderRadius: BorderRadius.circular(22), onTap: () { SoundService.play('click.mp3'); onTap(); }, child: Container(height: 106, padding: const EdgeInsets.all(13), decoration: BoxDecoration(gradient: LinearGradient(colors: gradient), borderRadius: BorderRadius.circular(22), border: Border.all(color: Colors.white38, width: 1.2)), child: Row(children: [Icon(icon, color: Colors.white, size: 38), const SizedBox(width: 8), Expanded(child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w900)), const SizedBox(height: 4), Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600))])), const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 27)]))));
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+        onTap: () { SoundService.play('click.mp3'); onTap(); },
+        child: Container(
+          height: 120,
+          padding: const EdgeInsets.all(13),
+          decoration: BoxDecoration(gradient: LinearGradient(colors: gradient), borderRadius: BorderRadius.circular(22), border: Border.all(color: Colors.white38, width: 1.2)),
+          child: Row(
+            children: [
+              Icon(icon, color: Colors.white, size: 38),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w900, height: 1.05)),
+                    const SizedBox(height: 4),
+                    Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600, height: 1.1)),
+                  ],
+                ),
+              ),
+              const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 27),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildQuoteBanner() => Container(height: 104, padding: const EdgeInsets.symmetric(horizontal: 16), decoration: BoxDecoration(color: const Color(0xFFF3F7FC), borderRadius: BorderRadius.circular(24), border: Border.all(color: Colors.white, width: 2)), child: Row(children: [const Icon(Icons.extension_rounded, color: Color(0xFF058CF4), size: 54), const SizedBox(width: 13), const Expanded(child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [Text('“Small Pieces,', style: TextStyle(color: Color(0xFF173D78), fontSize: 20, fontWeight: FontWeight.w900, fontStyle: FontStyle.italic)), Text('Big Happiness”', style: TextStyle(color: Color(0xFF173D78), fontSize: 20, fontWeight: FontWeight.w900, fontStyle: FontStyle.italic)), SizedBox(height: 5), Text('Solve • Collect • Relax', style: TextStyle(color: Color(0xFF1266B5), fontSize: 11, fontWeight: FontWeight.w700))])), const Icon(Icons.favorite_border_rounded, color: Color(0xFF173D78), size: 28)]));
