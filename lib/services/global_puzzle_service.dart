@@ -13,11 +13,11 @@ class GlobalPuzzleService {
     _remainingImages.shuffle();
   }
 
-  static String getRandomPuzzle({int gridSize = 4}) {
+  static String getRandomPuzzle({int? gridSize}) {
     if (_remainingImages.isEmpty) _resetImages();
     final number = _remainingImages.removeLast();
     currentPuzzlePath = 'assets/puzzles/puzzle$number.webp';
-    currentGridSize = gridSize;
+    if (gridSize != null) currentGridSize = gridSize;
     return currentPuzzlePath!;
   }
 
