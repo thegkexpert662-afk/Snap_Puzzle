@@ -6,38 +6,291 @@ permissions:
   contents: write
 jobs:
   fix:
-    if: github.event.head_commit.message != 'Fix Home Daily Challenge button swap'
+    if: github.event.head_commit.message != 'Fix Leaderboard Responsive UI'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Apply changes
+      - name: Fix leaderboard responsive layout
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
-          p = Path('lib/screens/home_screen.dart')
+          import re
+
+          p = Path('lib/screens/leaderboard_screen.dart')
           s = p.read_text()
-          old = "Text('Create', style: TextStyle(color: Colors.white, fontSize: 27, fontWeight: FontWeight.w900)), Text('New Puzzle', style: TextStyle(color: Color(0xFFFFE11A), fontSize: 27, fontWeight: FontWeight.w900), maxLines: 1, overflow: TextOverflow.ellipsis), SizedBox(height: 9), Text('Choose from 86 puzzle photos or use your own photo', style: TextStyle(color: Colors.white, fontSize: 13, height: 1.35), maxLines: 3, overflow: TextOverflow.ellipsis)"
-          new = "Text('Daily', style: TextStyle(color: Colors.white, fontSize: 27, fontWeight: FontWeight.w900)), Text('Challenge', style: TextStyle(color: Color(0xFFFFE11A), fontSize: 27, fontWeight: FontWeight.w900), maxLines: 1, overflow: TextOverflow.ellipsis), SizedBox(height: 9), Text('New puzzle every day. Play with your current level difficulty.', style: TextStyle(color: Colors.white, fontSize: 13, height: 1.35), maxLines: 3, overflow: TextOverflow.ellipsis)"
-          if old not in s:
-              raise SystemExit('large card text not found')
-          s = s.replace(old, new, 1)
-          old = "Expanded(child: _smallActionCard(title: 'Daily Challenge', subtitle: 'New Puzzle Every Day', icon: Icons.emoji_events_rounded, gradient: const [Color(0xFFFFD32A), Color(0xFFFF7414)], onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AssetImageSelectionScreen()))))"
-          new = "Expanded(child: _smallActionCard(title: 'Create New Puzzle', subtitle: 'Use Camera or Gallery', icon: Icons.add_photo_alternate_rounded, gradient: const [Color(0xFF18B9FF), Color(0xFF0069EA)], onTap: () => _showCreatePuzzleOptions()))"
-          if old not in s:
-              raise SystemExit('small daily card not found')
-          s = s.replace(old, new, 1)
-          marker = "  void _showMessage(String message) {"
-          method = '''  void _showCreatePuzzleOptions() {\n    showModalBottomSheet<void>(\n      context: context,\n      backgroundColor: const Color(0xFF0A2454),\n      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),\n      builder: (sheetContext) => SafeArea(\n        child: Padding(\n          padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),\n          child: Column(mainAxisSize: MainAxisSize.min, children: [\n            const Text('Create New Puzzle', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),\n            const SizedBox(height: 6),\n            const Text('Choose how you want to add your photo', style: TextStyle(color: Colors.white70, fontSize: 13)),\n            const SizedBox(height: 16),\n            Row(children: [\n              Expanded(child: _createOptionButton(sheetContext, Icons.camera_alt_rounded, 'Take Photo', () { Navigator.pop(sheetContext); pickImage(ImageSource.camera); })),\n              const SizedBox(width: 12),\n              Expanded(child: _createOptionButton(sheetContext, Icons.photo_library_rounded, 'Gallery', () { Navigator.pop(sheetContext); pickImage(ImageSource.gallery); })),\n            ]),\n          ]),\n        ),\n      ),\n    );\n  }\n\n  Widget _createOptionButton(BuildContext sheetContext, IconData icon, String label, VoidCallback onTap) {\n    return Material(\n      color: Colors.transparent,\n      child: InkWell(\n        borderRadius: BorderRadius.circular(16),\n        onTap: onTap,\n        child: Container(\n          padding: const EdgeInsets.symmetric(vertical: 16),\n          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white24), gradient: const LinearGradient(colors: [Color(0xFF12396D), Color(0xFF071D47)])),\n          child: Column(children: [Icon(icon, color: Colors.white, size: 30), const SizedBox(height: 7), Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800))]),\n        ),\n      ),\n    );\n  }\n\n'''
-          if marker not in s:
-              raise SystemExit('message marker not found')
-          s = s.replace(marker, method + marker, 1)
+
+          header = r'''  Widget _header(BuildContext context) {
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _CircleButton(
+                  icon: Icons.arrow_back_rounded,
+                  onTap: () => Navigator.pop(context),
+                ),
+                const SizedBox(width: 10),
+                const Icon(
+                  Icons.emoji_events_rounded,
+                  color: Color(0xFFFFB928),
+                  size: 54,
+                ),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'Global ',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              TextSpan(
+                                text: 'Leaderboard',
+                                style: TextStyle(color: Color(0xFFFFD42A)),
+                              ),
+                            ],
+                          ),
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.w900,
+                            height: 1,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 7),
+                      Text(
+                        'Top Players from Around the World',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Color(0xFFB8D4FF),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          height: 1.25,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.public_rounded,
+                  color: Color(0xFF19C7FF),
+                  size: 52,
+                ),
+              ],
+            );
+          }
+'''
+
+          player = r'''class _PlayerCard extends StatelessWidget {
+            final int rank;
+            final Map<String, dynamic> data;
+
+            const _PlayerCard({required this.rank, required this.data});
+
+            @override
+            Widget build(BuildContext context) {
+              final first = rank == 1;
+              final second = rank == 2;
+              final third = rank == 3;
+              final bg = first
+                  ? const [Color(0xFFFF2D91), Color(0xFFB90062)]
+                  : second
+                      ? const [Color(0xFF138FF5), Color(0xFF0750B8)]
+                      : third
+                          ? const [Color(0xFFFF7414), Color(0xFFC84608)]
+                          : const [Color(0xFF123F85), Color(0xFF08265A)];
+              final border = first
+                  ? const Color(0xFFFF45B0)
+                  : second
+                      ? const Color(0xFF18A9FF)
+                      : third
+                          ? const Color(0xFFFF8622)
+                          : const Color(0xFF126CC7);
+              final badge = first
+                  ? '👑 Legend'
+                  : second
+                      ? '★ Pro'
+                      : third
+                          ? '★ Rising Star'
+                          : '★ Player';
+
+              return Container(
+                padding: const EdgeInsets.fromLTRB(12, 14, 12, 15),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: bg,
+                  ),
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(color: border, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: bg.first.withOpacity(.35),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    if (first)
+                      const Align(
+                        alignment: Alignment.topRight,
+                        child: _WorldNumber(),
+                      )
+                    else
+                      const SizedBox(height: 4),
+                    const SizedBox(height: 4),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final compact = constraints.maxWidth < 390;
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            _Rank(rank: rank),
+                            const SizedBox(width: 7),
+                            const _Avatar(),
+                            const SizedBox(width: 9),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    data['name']?.toString() ?? 'Unknown Player',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 19,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  _Info(
+                                    icon: Icons.badge_rounded,
+                                    color: const Color(0xFFE34AFF),
+                                    text: data['playerId']?.toString() ?? '--',
+                                  ),
+                                  const SizedBox(height: 5),
+                                  _Info(
+                                    icon: Icons.timer_rounded,
+                                    color: Colors.white,
+                                    text: '${data['bestTime'] ?? 0} sec',
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Container(
+                                      constraints: BoxConstraints(
+                                        maxWidth: compact ? 115 : 150,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 5,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(.2),
+                                        borderRadius: BorderRadius.circular(18),
+                                        border: Border.all(
+                                          color: first || third
+                                              ? const Color(0xFFFFC91B)
+                                              : const Color(0xFF2FE7FF),
+                                          width: 1.7,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        badge,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: first || third
+                                              ? const Color(0xFFFFF3A0)
+                                              : const Color(0xFFB8F6FF),
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w900,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 7),
+                            SizedBox(
+                              width: compact ? 78 : 88,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.emoji_events_rounded,
+                                    color: Color(0xFFFFD13A),
+                                    size: 38,
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 9,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(.22),
+                                      borderRadius: BorderRadius.circular(18),
+                                      border: Border.all(
+                                        color: Colors.white12,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        '${data['totalScore'] ?? 0}',
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          color: Color(0xFFFFE01B),
+                                          fontSize: 21,
+                                          fontWeight: FontWeight.w900,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            }
+          }
+
+'''
+
+          s = re.sub(r"  Widget _header\(BuildContext context\) \{.*?^\}\n\nclass _PlayerCard", header + "class _PlayerCard", s, count=1, flags=re.S|re.M)
+          s = re.sub(r"class _PlayerCard extends StatelessWidget \{.*?^class _Rank", player + "class _Rank", s, count=1, flags=re.S|re.M)
+          s = s.replace("fontSize: 12,\n              fontWeight: FontWeight.w600,", "fontSize: 11,\n              fontWeight: FontWeight.w600,")
           p.write_text(s)
           PY
-      - name: Commit code and remove workflow
+      - name: Commit code and remove temporary workflows
         run: |
+          rm -f .github/workflows/fix-home-buttons.yml .github/workflows/fix-leaderboard-ui.yml LEADERBOARD_UI_TRIGGER.md
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add lib/screens/home_screen.dart .github/workflows/fix-home-buttons.yml
-          git commit -m "Fix Home Daily Challenge button swap"
+          git add lib/screens/leaderboard_screen.dart .github/workflows/fix-home-buttons.yml .github/workflows/fix-leaderboard-ui.yml LEADERBOARD_UI_TRIGGER.md
+          git commit -m "Fix Leaderboard Responsive UI"
           git push
