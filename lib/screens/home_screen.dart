@@ -15,6 +15,7 @@ import 'leaderboard_screen.dart';
 import 'login_screen.dart';
 import 'my_puzzles_screen.dart';
 import 'settings_screen.dart';
+import 'social_rewards_screen.dart';
 import 'stats_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -315,6 +316,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       const SizedBox(height: 12),
                       _buildQuickActions(),
                       const SizedBox(height: 14),
+                      _buildSocialRewardsCard(),
+                      const SizedBox(height: 14),
                       _buildQuoteBanner(),
                       const SizedBox(height: 16),
                       _buildChampionCard(),
@@ -472,6 +475,26 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSocialRewardsCard() {
+    return _gradientCard(
+      gradient: const [Color(0xFF7B2CFF), Color(0xFF3B0CA3)],
+      padding: const EdgeInsets.fromLTRB(18, 16, 14, 16),
+      child: Row(children: [
+        Container(width: 58, height: 58, decoration: BoxDecoration(color: Colors.white.withOpacity(.14), shape: BoxShape.circle), child: const Icon(Icons.card_giftcard_rounded, color: Colors.white, size: 34)),
+        const SizedBox(width: 13),
+        const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Follow & Earn', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
+          SizedBox(height: 4),
+          Text('YouTube +200 • Instagram +500 • Facebook +300 Coins', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w700), maxLines: 2),
+        ])),
+        _circleArrow(() {
+          SoundService.play('click.mp3');
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const SocialRewardsScreen()));
+        }),
+      ]),
     );
   }
 
