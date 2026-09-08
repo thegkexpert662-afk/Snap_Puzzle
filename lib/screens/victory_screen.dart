@@ -76,7 +76,7 @@ class _ActionButton extends StatelessWidget {
   final String label; final IconData icon; final List<Color> colors; final VoidCallback onTap;
   const _ActionButton({required this.label, required this.icon, required this.colors, required this.onTap});
   @override
-  Widget build(BuildContext context) => SizedBox(width: double.infinity, height: 58, child: ElevatedButton.icon(onPressed: onTap, icon: Icon(icon), label: Text(label, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900)), style: ElevatedButton.styleFrom(backgroundColor: colors.first, foregroundColor: Colors.white, elevation: 7, shadowColor: colors.first.withOpacity(.45), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18))))._withGradient(colors));
+  Widget build(BuildContext context) => SizedBox(width: double.infinity, height: 58, child: ElevatedButton.icon(onPressed: onTap, icon: Icon(icon), label: Text(label, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900)), style: ElevatedButton.styleFrom(backgroundColor: colors.first, foregroundColor: Colors.white, elevation: 7, shadowColor: colors.first.withOpacity(.45), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18))))._withGradient(colors);
 }
 
 extension on Widget {
@@ -85,7 +85,38 @@ extension on Widget {
 
 class _VictoryBackground extends StatelessWidget {
   const _VictoryBackground();
+
   @override
-  Widget build(BuildContext context) => Positioned.fill(child: DecoratedBox(decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF082D6A), Color(0xFF061D49), Color(0xFF03132F)])), child: Stack(children: [Positioned(top: -80, right: -90, child: _glow(240, const Color(0xFF008BFF))), Positioned(bottom: -100, left: -100, child: _glow(250, const Color(0xFF6C2CFF)))]));
-  static Widget _glow(double size, Color color) => IgnorePointer(child: Container(width: size, height: size, decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: color.withOpacity(.22), blurRadius: 100, spreadRadius: 35)])));
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF082D6A), Color(0xFF061D49), Color(0xFF03132F)],
+          ),
+        ),
+        child: Stack(
+          children: [
+            Positioned(top: -80, right: -90, child: _glow(240, const Color(0xFF008BFF))),
+            Positioned(bottom: -100, left: -100, child: _glow(250, const Color(0xFF6C2CFF))),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Widget _glow(double size, Color color) {
+    return IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [BoxShadow(color: color.withOpacity(.22), blurRadius: 100, spreadRadius: 35)],
+        ),
+      ),
+    );
+  }
 }
