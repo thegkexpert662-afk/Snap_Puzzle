@@ -436,28 +436,7 @@ class _HomeScreenState extends State<HomeScreen>
           child: const Icon(Icons.person, color: Colors.white, size: 36),
         ),
         const SizedBox(width: 12),
-        const Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Hello!', style: TextStyle(color: Colors.white70, fontSize: 18)),
-              Text(
-                'Player',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 25,
-                  fontWeight: FontWeight.w900,
-                  height: 1,
-                ),
-              ),
-              SizedBox(height: 5),
-              Text(
-                'Keep Solving! ✨',
-                style: TextStyle(color: Colors.white70, fontSize: 14),
-              ),
-            ],
-          ),
-        ),
+       
         _buildCoinPill(),
         const SizedBox(width: 8),
         _roundIconButton(Icons.settings, _openSettings),
