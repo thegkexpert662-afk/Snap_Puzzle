@@ -1,0 +1,34 @@
+name: Add social rewards card
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/scripts/add_social_rewards_home.py'
+      - 'lib/screens/home_screen.dart'
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: python3 .github/scripts/add_social_rewards_home.py
+      - name: Commit Home changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lib/screens/home_screen.dart
+          git diff --cached --quiet && exit 0
+          git commit -m "Add Follow and Earn section to Home"
+          git push
+      - name: Remove patch workflow and script
+        if: always()
+        run: |
+          git rm -f .github/workflows/add-social-rewards-home.yml .github/scripts/add_social_rewards_home.py || true
+          git diff --cached --quiet && exit 0
+          git commit -m "Remove temporary social rewards patch workflow"
+          git push
