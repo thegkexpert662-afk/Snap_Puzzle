@@ -77,13 +77,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _header() => Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _BackButton(onTap: () => Navigator.pop(context)),
-          const SizedBox(width: 16),
+          const SizedBox(width: 15),
           const Icon(Icons.settings_rounded,
-              color: Color(0xFF8DDCFF), size: 62),
-          const SizedBox(width: 14),
+              color: Color(0xFF8DDCFF), size: 60),
+          const SizedBox(width: 12),
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +105,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: Color(0xFF9CCBFF),
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -116,20 +115,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       );
 
-  Widget _soundPanel() => const _Panel(
+  Widget _soundPanel() => _Panel(
         child: Column(
           children: [
             _ToggleRow(
               Icons.volume_up_rounded,
-              [Color(0xFF1AAEFF), Color(0xFF075BCB)],
+              const [Color(0xFF1AAEFF), Color(0xFF075BCB)],
               'Sound',
               'Play game sounds',
-              true,
-              null,
+              sound,
+              setSound,
+            ),
+            const _DividerLine(),
+            _ToggleRow(
+              Icons.vibration_rounded,
+              const [Color(0xFFB83DFF), Color(0xFF6410D9)],
+              'Vibration',
+              'Feel the game feedback',
+              vibration,
+              setVibration,
             ),
           ],
         ),
-      )._withRows(this);
+      );
 
   Widget _linksPanel() => _Panel(
         child: Column(
@@ -226,28 +234,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
           borderRadius: BorderRadius.circular(27),
           border: Border.all(color: const Color(0xFF704FFF), width: 2),
           boxShadow: const [
-            BoxShadow(color: Color(0x664D3AFF), blurRadius: 20)
+            BoxShadow(color: Color(0x664D3AFF), blurRadius: 20),
           ],
         ),
         child: Row(
           children: [
             const SizedBox(
-              width: 72,
-              height: 68,
+              width: 68,
+              height: 64,
               child: Stack(
                 children: [
                   Positioned(
                       left: 0,
                       top: 0,
-                      child: Text('🧩', style: TextStyle(fontSize: 30))),
+                      child: Text('🧩', style: TextStyle(fontSize: 28))),
                   Positioned(
                       right: 0,
                       top: 2,
-                      child: Text('🧩', style: TextStyle(fontSize: 27))),
+                      child: Text('🧩', style: TextStyle(fontSize: 25))),
                   Positioned(
-                      left: 22,
+                      left: 20,
                       bottom: 0,
-                      child: Text('🧩', style: TextStyle(fontSize: 32))),
+                      child: Text('🧩', style: TextStyle(fontSize: 30))),
                 ],
               ),
             ),
@@ -295,36 +303,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             TextButton(
               onPressed: () => Navigator.pop(c),
               child: const Text('OK'),
-            )
+            ),
           ],
         ),
       );
 }
-
-extension on _Panel {
-  Widget _withRows(_SettingsScreenState state) => _Panel(
-        child: Column(
-          children: [
-            _ToggleRow(
-              Icons.volume_up_rounded,
-              const [Color(0xFF1AAEFF), Color(0xFF075BCB)],
-              'Sound',
-              'Play game sounds',
-              state.sound,
-              state.setSound,
-            ),
-            const _DividerLine(),
-            _ToggleRow(
-              Icons.vibration_rounded,
-              const [Color(0xFFB83DFF), Color(0xFF6410D9)],
-              'Vibration',
-              'Feel the game feedback',
-              state.vibration,
-              state.setVibration,
-            ),
-          ],
-        ),
-      );
 
 class _Panel extends StatelessWidget {
   final Widget child;
@@ -349,7 +332,9 @@ class _Panel extends StatelessWidget {
           border: Border.all(color: const Color(0xFF167AD7), width: 2),
           boxShadow: const [
             BoxShadow(
-                color: Color(0x44006DFF), blurRadius: 17, offset: Offset(0, 7))
+                color: Color(0x44006DFF),
+                blurRadius: 17,
+                offset: Offset(0, 7)),
           ],
         ),
         child: child,
@@ -375,11 +360,11 @@ class _ToggleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        height: 102,
+        height: 94,
         child: Row(
           children: [
-            _GradientIcon(icon, colors, 58),
-            const SizedBox(width: 16),
+            _GradientIcon(icon, colors, 56),
+            const SizedBox(width: 15),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -401,13 +386,13 @@ class _ToggleRow extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                         color: Color(0xFF91C5FF),
-                        fontSize: 13,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 9),
             _AppSwitch(value: value, onChanged: onChanged),
           ],
         ),
@@ -431,11 +416,11 @@ class _LinkRow extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(18),
           child: SizedBox(
-            height: 88,
+            height: 82,
             child: Row(
               children: [
-                _GradientIcon(icon, colors, 54),
-                const SizedBox(width: 16),
+                _GradientIcon(icon, colors, 52),
+                const SizedBox(width: 15),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -463,9 +448,9 @@ class _LinkRow extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 5),
                 const Icon(Icons.chevron_right_rounded,
-                    color: Color(0xFF9DD4FF), size: 34),
+                    color: Color(0xFF9DD4FF), size: 32),
               ],
             ),
           ),
@@ -492,7 +477,7 @@ class _GradientIcon extends StatelessWidget {
               colors: colors),
           border: Border.all(color: Colors.white24, width: 1.5),
           boxShadow: [
-            BoxShadow(color: colors.last.withOpacity(.45), blurRadius: 12)
+            BoxShadow(color: colors.last.withOpacity(.45), blurRadius: 12),
           ],
         ),
         child: Icon(icon, color: Colors.white, size: size * .58),
@@ -510,8 +495,8 @@ class _AppSwitch extends StatelessWidget {
         onTap: () => onChanged(!value),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          width: 78,
-          height: 38,
+          width: 76,
+          height: 37,
           padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(22),
@@ -529,13 +514,13 @@ class _AppSwitch extends StatelessWidget {
             alignment:
                 value ? Alignment.centerRight : Alignment.centerLeft,
             child: Container(
-              width: 30,
-              height: 30,
+              width: 29,
+              height: 29,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.white,
                 boxShadow: [
-                  BoxShadow(color: Color(0x66000000), blurRadius: 7)
+                  BoxShadow(color: Color(0x66000000), blurRadius: 7),
                 ],
               ),
             ),
@@ -574,7 +559,7 @@ class _BackButton extends StatelessWidget {
                   colors: [Color(0xFF0C448E), Color(0xFF061E4E)]),
               border: Border.all(color: const Color(0xFF0F66C6), width: 2),
               boxShadow: const [
-                BoxShadow(color: Color(0x44000000), blurRadius: 10)
+                BoxShadow(color: Color(0x44000000), blurRadius: 10),
               ],
             ),
             child: const Icon(Icons.arrow_back_rounded,
@@ -597,7 +582,7 @@ class _SettingsBackground extends StatelessWidget {
               colors: [
                 Color(0xFF072D6B),
                 Color(0xFF061D49),
-                Color(0xFF03132F)
+                Color(0xFF03132F),
               ],
               stops: [0, .48, 1],
             ),
@@ -605,17 +590,20 @@ class _SettingsBackground extends StatelessWidget {
           child: Stack(
             children: [
               Positioned(
-                  top: -70,
-                  right: -80,
-                  child: _glow(210, const Color(0xFF0073FF))),
+                top: -70,
+                right: -80,
+                child: _glow(210, const Color(0xFF0073FF)),
+              ),
               Positioned(
-                  top: 450,
-                  left: -100,
-                  child: _glow(230, const Color(0xFF0054C8))),
+                top: 450,
+                left: -100,
+                child: _glow(230, const Color(0xFF0054C8)),
+              ),
               Positioned(
-                  bottom: 100,
-                  right: -90,
-                  child: _glow(220, const Color(0xFF3120B5))),
+                bottom: 100,
+                right: -90,
+                child: _glow(220, const Color(0xFF3120B5)),
+              ),
             ],
           ),
         ),
@@ -631,7 +619,7 @@ class _SettingsBackground extends StatelessWidget {
               BoxShadow(
                   color: color.withOpacity(.22),
                   blurRadius: 100,
-                  spreadRadius: 35)
+                  spreadRadius: 35),
             ],
           ),
         ),
