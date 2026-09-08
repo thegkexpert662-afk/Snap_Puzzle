@@ -9,6 +9,7 @@ import 'package:marquee/marquee.dart';
 
 import '../services/google_auth_service.dart';
 import '../services/sound_service.dart';
+import 'asset_image_selection_screen.dart';
 import 'difficulty_screen.dart';
 import 'leaderboard_screen.dart';
 import 'login_screen.dart';
@@ -164,20 +165,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     setState(() => _selectedNav = index);
     SoundService.play('click.mp3');
     switch (index) {
-      case 0:
-        break;
-      case 1:
-        _showMessage('Your puzzles will appear here.');
-        break;
-      case 2:
-        showRewardedAd();
-        break;
-      case 3:
-        _openStats();
-        break;
-      case 4:
-        _openSettings();
-        break;
+      case 0: break;
+      case 1: _showMessage('Your puzzles will appear here.'); break;
+      case 2: showRewardedAd(); break;
+      case 3: _openStats(); break;
+      case 4: _openSettings(); break;
     }
   }
 
@@ -320,8 +312,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       child: Row(children: [
         Container(width: 94, height: 94, decoration: BoxDecoration(color: Colors.white.withOpacity(.15), borderRadius: BorderRadius.circular(22), border: Border.all(color: Colors.white30)), child: const Icon(Icons.add_photo_alternate_rounded, color: Colors.white, size: 54)),
         const SizedBox(width: 15),
-        const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Create', style: TextStyle(color: Colors.white, fontSize: 27, fontWeight: FontWeight.w900)), Text('New Puzzle', style: TextStyle(color: Color(0xFFFFE11A), fontSize: 27, fontWeight: FontWeight.w900), maxLines: 1, overflow: TextOverflow.ellipsis), SizedBox(height: 9), Text('Turn your photos into amazing jigsaw puzzles', style: TextStyle(color: Colors.white, fontSize: 13, height: 1.35), maxLines: 3, overflow: TextOverflow.ellipsis)])),
-        _circleArrow(() { SoundService.play('click.mp3'); pickImage(ImageSource.gallery); }),
+        const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Create', style: TextStyle(color: Colors.white, fontSize: 27, fontWeight: FontWeight.w900)), Text('New Puzzle', style: TextStyle(color: Color(0xFFFFE11A), fontSize: 27, fontWeight: FontWeight.w900), maxLines: 1, overflow: TextOverflow.ellipsis), SizedBox(height: 9), Text('Choose from 86 puzzle photos or use your own photo', style: TextStyle(color: Colors.white, fontSize: 13, height: 1.35), maxLines: 3, overflow: TextOverflow.ellipsis)])),
+        _circleArrow(() {
+          SoundService.play('click.mp3');
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const AssetImageSelectionScreen()));
+        }),
       ]),
     );
   }
@@ -364,7 +359,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Widget _gradientCard({required List<Color> gradient, required Widget child, EdgeInsetsGeometry padding = const EdgeInsets.all(16)}) => Container(width: double.infinity, padding: padding, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: gradient), borderRadius: BorderRadius.circular(25), border: Border.all(color: Colors.white38, width: 1.2)), child: child);
-  Widget _circleArrow(VoidCallback onTap) => Material(color: Colors.transparent, child: InkWell(customBorder: const CircleBorder(), onTap: onTap, child: Container(width: 58, height: 58, decoration: const BoxDecoration(shape: BoxShape.circle, gradient: LinearGradient(colors: [Color(0xFFFFF15B), Color(0xFFFFA400)])), child: const Icon(Icons.arrow_forward_rounded, color: Color(0xFF9A4A00), size: 34))));
+  Widget _circleArrow(VoidCallback onTap) => Material(color: Colors.transparent, child: InkWell(customBorder: const CircleBorder(), onTap: onTap, child: Container(width: 58, height: 58, decoration: const BoxDecoration(shape: BoxShape.circle, gradient: LinearGradient(colors: [Color(0xFFFFF15B), Color(0xFFFFA400)]), boxShadow: [BoxShadow(color: Color(0x66FFD000), blurRadius: 14)]), child: const Icon(Icons.arrow_forward_rounded, color: Color(0xFF9A4A00), size: 34))));
 
   Widget _buildBottomNavigation() {
     const items = [(Icons.home_rounded, 'Home'), (Icons.photo_library_rounded, 'My Puzzles'), (Icons.emoji_events_rounded, 'Rewards'), (Icons.bar_chart_rounded, 'Stats'), (Icons.person_rounded, 'Profile')];
