@@ -81,7 +81,49 @@ class _LoginScreenState extends State<LoginScreen> {
 
 class _LoginBackground extends StatelessWidget {
   const _LoginBackground();
+
   @override
-  Widget build(BuildContext context) => Positioned.fill(child: DecoratedBox(decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF082E6D), Color(0xFF061D49), Color(0xFF03132F)])), child: Stack(children: [Positioned(top: -100, right: -80, child: _glow(260, const Color(0xFF008BFF))), Positioned(top: 330, left: -120, child: _glow(240, const Color(0xFF2450E8))), Positioned(bottom: -100, right: -70, child: _glow(250, const Color(0xFF6C2CFF))])));
-  static Widget _glow(double size, Color color) => IgnorePointer(child: Container(width: size, height: size, decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: color.withOpacity(.22), blurRadius: 110, spreadRadius: 35)])));
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF082E6D),
+              Color(0xFF061D49),
+              Color(0xFF03132F),
+            ],
+          ),
+        ),
+        child: Stack(
+          children: [
+            Positioned(top: -100, right: -80, child: _glow(260, const Color(0xFF008BFF))),
+            Positioned(top: 330, left: -120, child: _glow(240, const Color(0xFF2450E8))),
+            Positioned(bottom: -100, right: -70, child: _glow(250, const Color(0xFF6C2CFF))),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Widget _glow(double size, Color color) {
+    return IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(.22),
+              blurRadius: 110,
+              spreadRadius: 35,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
