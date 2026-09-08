@@ -1,0 +1,49 @@
+name: Swap Home Buttons
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  swap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Swap buttons
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('lib/screens/home_screen.dart')
+          s = p.read_text()
+          old = """const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Create', style: TextStyle(color: Colors.white, fontSize: 27, fontWeight: FontWeight.w900)), Text('New Puzzle', style: TextStyle(color: Color(0xFFFFE11A), fontSize: 27, fontWeight: FontWeight.w900), maxLines: 1, overflow: TextOverflow.ellipsis), SizedBox(height: 9), Text('Choose from 86 puzzle photos or use your own photo', style: TextStyle(color: Colors.white, fontSize: 13, height: 1.35), maxLines: 3, overflow: TextOverflow.ellipsis)])),"""
+          new = """const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Daily', style: TextStyle(color: Colors.white, fontSize: 27, fontWeight: FontWeight.w900)), Text('Challenge', style: TextStyle(color: Color(0xFFFFE11A), fontSize: 27, fontWeight: FontWeight.w900), maxLines: 1, overflow: TextOverflow.ellipsis), SizedBox(height: 9), Text('New puzzle every day. Play with your current level difficulty.', style: TextStyle(color: Colors.white, fontSize: 13, height: 1.35), maxLines: 3, overflow: TextOverflow.ellipsis)])),"""
+          if old not in s: raise SystemExit('large card text not found')
+          s = s.replace(old, new, 1)
+          old = """_circleArrow(() {\n          SoundService.play('click.mp3');\n          Navigator.push(context, MaterialPageRoute(builder: (_) => const AssetImageSelectionScreen()));\n        }),"""
+          new = """_circleArrow(() {\n          SoundService.play('click.mp3');\n          Navigator.push(context, MaterialPageRoute(builder: (_) => const AssetImageSelectionScreen()));\n        }),"""
+          # Large card already opens the Assets flow; keep that action for Daily Challenge.
+          s = s.replace(old, new, 1)
+          old = """Expanded(child: _smallActionCard(title: 'Daily Challenge', subtitle: 'New Puzzle Every Day', icon: Icons.emoji_events_rounded, gradient: const [Color(0xFFFFD32A), Color(0xFFFF7414)], onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AssetImageSelectionScreen()))))"""
+          new = """Expanded(child: _smallActionCard(title: 'Create New Puzzle', subtitle: 'Use Camera or Gallery', icon: Icons.add_photo_alternate_rounded, gradient: const [Color(0xFF18B9FF), Color(0xFF0069EA)], onTap: () => _showCreatePuzzleOptions()))"""
+          if old not in s: raise SystemExit('small daily card not found')
+          s = s.replace(old, new, 1)
+          marker = """  void _showMessage(String message) {\n"""
+          method = """  void _showCreatePuzzleOptions() {\n    showModalBottomSheet<void>(\n      context: context,\n      backgroundColor: const Color(0xFF0A2454),\n      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),\n      builder: (sheetContext) => SafeArea(\n        child: Padding(\n          padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),\n          child: Column(mainAxisSize: MainAxisSize.min, children: [\n            const Text('Create New Puzzle', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),\n            const SizedBox(height: 6),\n            const Text('Choose how you want to add your photo', style: TextStyle(color: Colors.white70, fontSize: 13)),\n            const SizedBox(height: 16),\n            Row(children: [\n              Expanded(child: _createOptionButton(sheetContext, Icons.camera_alt_rounded, 'Take Photo', () { Navigator.pop(sheetContext); pickImage(ImageSource.camera); })),\n              const SizedBox(width: 12),\n              Expanded(child: _createOptionButton(sheetContext, Icons.photo_library_rounded, 'Gallery', () { Navigator.pop(sheetContext); pickImage(ImageSource.gallery); })),\n            ]),\n          ]),\n        ),\n      ),\n    );\n  }\n\n  Widget _createOptionButton(BuildContext sheetContext, IconData icon, String label, VoidCallback onTap) {\n    return Material(\n      color: Colors.transparent,\n      child: InkWell(\n        borderRadius: BorderRadius.circular(16),\n        onTap: onTap,\n        child: Container(\n          padding: const EdgeInsets.symmetric(vertical: 16),\n          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white24), gradient: const LinearGradient(colors: [Color(0xFF12396D), Color(0xFF071D47)])),\n          child: Column(children: [Icon(icon, color: Colors.white, size: 30), const SizedBox(height: 7), Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800))]),\n        ),\n      ),\n    );\n  }\n\n"""
+          if marker not in s: raise SystemExit('message marker not found')
+          s = s.replace(marker, method + marker, 1)
+          p.write_text(s)
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lib/screens/home_screen.dart
+          git diff --cached --quiet && exit 0
+          git commit -m "Swap Daily Challenge and Create New Puzzle"
+          git push
+      - name: Remove temporary workflow
+        if: always()
+        run: |
+          rm -f .github/workflows/swap-home-buttons.yml
+          git add .github/workflows/swap-home-buttons.yml
+          git diff --cached --quiet || git commit -m "Remove temporary swap workflow"
+          git push || true
