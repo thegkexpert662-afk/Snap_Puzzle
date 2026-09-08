@@ -200,7 +200,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Version 1.0.0',
+                    'version: 1.0.2',
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
