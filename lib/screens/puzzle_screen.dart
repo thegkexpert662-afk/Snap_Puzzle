@@ -13,6 +13,7 @@ import 'asset_puzzle_screen.dart';
 import '../services/global_puzzle_service.dart';
 import '../services/sound_service.dart';
 import '../services/saved_puzzle_service.dart';
+import '../widgets/puzzle_banner_ad.dart';
 
 class PuzzleScreen extends StatefulWidget {
   final File imageFile;
@@ -352,6 +353,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
                       );
                     }),
             ),
+            const PuzzleBannerAd(),
             Padding(
               padding: const EdgeInsets.fromLTRB(18, 8, 18, 18),
               child: Container(
