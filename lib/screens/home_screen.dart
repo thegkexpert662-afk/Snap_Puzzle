@@ -13,6 +13,7 @@ import 'asset_image_selection_screen.dart';
 import 'difficulty_screen.dart';
 import 'leaderboard_screen.dart';
 import 'login_screen.dart';
+import 'my_puzzles_screen.dart';
 import 'settings_screen.dart';
 import 'stats_screen.dart';
 
@@ -274,7 +275,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     SoundService.play('click.mp3');
     switch (index) {
       case 0: break;
-      case 1: _showMessage('Your puzzles will appear here.'); break;
+      case 1: Navigator.push(context, MaterialPageRoute(builder: (_) => const MyPuzzlesScreen())); break;
       case 2: showRewardedAd(); break;
       case 3: _openStats(); break;
       case 4: _openSettings(); break;

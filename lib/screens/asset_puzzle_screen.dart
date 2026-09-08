@@ -10,15 +10,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../services/global_puzzle_service.dart';
 import '../services/sound_service.dart';
+import '../services/saved_puzzle_service.dart';
 
 class AssetPuzzleScreen extends StatefulWidget {
   final String assetPath;
   final int gridSize;
+  final bool resume;
 
   const AssetPuzzleScreen({
     super.key,
     required this.assetPath,
     required this.gridSize,
+    this.resume = false,
   });
 
   @override
@@ -32,6 +35,7 @@ class _AssetPuzzleScreenState extends State<AssetPuzzleScreen> {
   bool isBannerReady = false;
 
   bool loading = true;
+  bool _winHandled = false;
 
 
   int coins = 100;
@@ -341,33 +345,40 @@ class _AssetPuzzleScreenState extends State<AssetPuzzleScreen> {
 
 
   Future<void> loadPuzzle() async {
-
     freeImageHintUsed = false;
     paidImageHintUsed = false;
-
-    pieces = await AssetImageSplitter.splitImage(
-      widget.assetPath,
-      widget.gridSize,
-    );
-    shufflePieces();
-    startTimer();
-
-    final bytes =
-    (await rootBundle.load(widget.assetPath))
-        .buffer
-        .asUint8List();
-
+    final saved = widget.resume ? await SavedPuzzleService.load() : null;
+    final canResume = saved != null && saved['type'] == 'asset' && saved['source'] == widget.assetPath && saved['gridSize'] == widget.gridSize && saved['order'] is List;
+    pieces = await AssetImageSplitter.splitImage(widget.assetPath, widget.gridSize);
+    if (canResume) {
+      final order = (saved!['order'] as List).map((e) => (e as num).toInt()).toList();
+      final byCorrect = <int, PuzzlePiece>{for (final piece in pieces) piece.correctIndex: piece};
+      if (order.length == pieces.length && order.every(byCorrect.containsKey)) {
+        pieces = order.map((correct) => byCorrect[correct]!).toList();
+        for (int i = 0; i < pieces.length; i++) pieces[i].currentIndex = i;
+        seconds = (saved['seconds'] as num?)?.toInt() ?? 0;
+        moves = (saved['moves'] as num?)?.toInt() ?? 0;
+      } else {
+        shufflePieces();
+        seconds = 0;
+        moves = 0;
+      }
+    } else {
+      shufflePieces();
+      seconds = 0;
+      moves = 0;
+    }
+    startTimer(initialSeconds: seconds);
+    final bytes = (await rootBundle.load(widget.assetPath)).buffer.asUint8List();
     final decoded = img.decodeImage(bytes);
-
     if (decoded != null) {
       imageWidth = decoded.width.toDouble();
       imageHeight = decoded.height.toDouble();
     }
-
-    setState(() {
-      loading = false;
-    });
+    if (mounted) setState(() => loading = false);
+    if (!canResume) await _saveProgress();
   }
+
   void shufflePieces() {
     pieces.shuffle();
 
@@ -377,19 +388,18 @@ class _AssetPuzzleScreenState extends State<AssetPuzzleScreen> {
   }
 
   void swapPieces(int oldIndex, int newIndex) {
+    if (_winHandled || oldIndex == newIndex) return;
     SoundService.play("move.mp3");
-
     setState(() {
       final temp = pieces[oldIndex];
       pieces[oldIndex] = pieces[newIndex];
       pieces[newIndex] = temp;
-
       pieces[oldIndex].currentIndex = oldIndex;
       pieces[newIndex].currentIndex = newIndex;
-
       moves++;
-      checkWin();
     });
+    checkWin();
+    if (!_winHandled) _saveProgress();
   }
   Future<void> checkWin() async {
     bool win = true;
@@ -535,6 +545,7 @@ class _AssetPuzzleScreenState extends State<AssetPuzzleScreen> {
 
         });
       }
+      await SavedPuzzleService.clear();
       print("Sending XP = $xpReward");
       print("Sending Level = $currentLevel");
       Navigator.push(
@@ -597,6 +608,16 @@ class _AssetPuzzleScreenState extends State<AssetPuzzleScreen> {
       );
     }
   }
+  Future<void> _saveProgress() async {
+    if (_winHandled || pieces.isEmpty) return;
+    await SavedPuzzleService.save(type: 'asset', source: widget.assetPath, gridSize: widget.gridSize, seconds: seconds, moves: moves, order: pieces.map((p) => p.correctIndex).toList());
+  }
+
+  Future<void> _exitPuzzle() async {
+    await _saveProgress();
+    if (mounted) Navigator.pop(context);
+  }
+
   int calculateXp(int gridSize, int moves) {
     switch (gridSize) {
       case 3:
@@ -640,20 +661,15 @@ class _AssetPuzzleScreenState extends State<AssetPuzzleScreen> {
     }
   }
 
-  void startTimer() {
+  void startTimer({int initialSeconds = 0}) {
     timer?.cancel();
-
-    seconds = 0;
-    moves = 0;
-
-    timer = Timer.periodic(
-      const Duration(seconds: 1),
-          (_) {
-        setState(() {
-          seconds++;
-        });
-      },
-    );
+    seconds = initialSeconds;
+    timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted && !_winHandled) {
+        setState(() => seconds++);
+        _saveProgress();
+      }
+    });
   }
   void loadRewardedAd() {
 

@@ -12,11 +12,13 @@ import 'package:flutter/services.dart';
 import 'asset_puzzle_screen.dart';
 import '../services/global_puzzle_service.dart';
 import '../services/sound_service.dart';
+import '../services/saved_puzzle_service.dart';
 
 class PuzzleScreen extends StatefulWidget {
   final File imageFile;
   final int gridSize;
-  const PuzzleScreen({super.key, required this.imageFile, required this.gridSize});
+  final bool resume;
+  const PuzzleScreen({super.key, required this.imageFile, required this.gridSize, this.resume = false});
   @override
   State<PuzzleScreen> createState() => _PuzzleScreenState();
 }
@@ -31,6 +33,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
   int seconds = 0;
   int moves = 0;
   late ConfettiController confettiController;
+  String? _saveSourcePath;
 
   @override
   void initState() {
@@ -56,6 +59,17 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
       moves++;
     });
     checkWin();
+    if (!_winHandled) _saveProgress();
+  }
+
+  Future<void> _saveProgress() async {
+    if (_winHandled || _saveSourcePath == null || pieces.isEmpty) return;
+    await SavedPuzzleService.save(type: 'custom', source: _saveSourcePath!, gridSize: widget.gridSize, seconds: seconds, moves: moves, order: pieces.map((p) => p.correctIndex).toList());
+  }
+
+  Future<void> _exitPuzzle() async {
+    await _saveProgress();
+    if (mounted) Navigator.pop(context);
   }
 
   int calculateXp(int gridSize, int moves) {
@@ -184,6 +198,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
     }
 
     if (!mounted) return;
+    await SavedPuzzleService.clear();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -223,19 +238,41 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
     );
   }
 
-  void startTimer() {
+  void startTimer({int initialSeconds = 0}) {
     timer?.cancel();
-    seconds = 0;
-    moves = 0;
+    seconds = initialSeconds;
     timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted && !_winHandled) setState(() => seconds++);
+      if (mounted && !_winHandled) {
+        setState(() => seconds++);
+        _saveProgress();
+      }
     });
   }
 
   Future<void> loadPuzzle() async {
+    final saved = widget.resume ? await SavedPuzzleService.load() : null;
+    final canResume = saved != null && saved['type'] == 'custom' && saved['gridSize'] == widget.gridSize && saved['source'] == widget.imageFile.path && saved['order'] is List;
+    _saveSourcePath = widget.resume ? widget.imageFile.path : await SavedPuzzleService.persistCustomImage(widget.imageFile);
     pieces = await ImageSplitter.splitImage(widget.imageFile, widget.gridSize);
-    shufflePieces();
-    startTimer();
+    if (canResume) {
+      final order = (saved!['order'] as List).map((e) => (e as num).toInt()).toList();
+      final byCorrect = <int, PuzzlePiece>{for (final piece in pieces) piece.correctIndex: piece};
+      if (order.length == pieces.length && order.every(byCorrect.containsKey)) {
+        pieces = order.map((correct) => byCorrect[correct]!).toList();
+        for (int i = 0; i < pieces.length; i++) pieces[i].currentIndex = i;
+        seconds = (saved['seconds'] as num?)?.toInt() ?? 0;
+        moves = (saved['moves'] as num?)?.toInt() ?? 0;
+      } else {
+        shufflePieces();
+        seconds = 0;
+        moves = 0;
+      }
+    } else {
+      shufflePieces();
+      seconds = 0;
+      moves = 0;
+    }
+    startTimer(initialSeconds: seconds);
     final bytes = await widget.imageFile.readAsBytes();
     final decoded = img.decodeImage(bytes);
     if (decoded != null) {
@@ -243,6 +280,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
       imageHeight = decoded.height.toDouble();
     }
     if (mounted) setState(() => loading = false);
+    if (!canResume) await _saveProgress();
   }
 
   @override
@@ -256,7 +294,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
               child: Row(children: [
-                _CircleButton(onTap: () => Navigator.pop(context), icon: Icons.arrow_back_rounded),
+                _CircleButton(onTap: _exitPuzzle, icon: Icons.arrow_back_rounded),
                 const SizedBox(width: 12),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   const Text('Solve Puzzle', style: TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.w900)),
