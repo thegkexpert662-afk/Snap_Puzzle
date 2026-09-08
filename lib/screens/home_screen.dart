@@ -198,19 +198,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      backgroundColor: const Color(0xFF071B43),
-      body: SafeArea(bottom: false, child: Stack(children: [
-        const _HomeBackground(),
-        CustomScrollView(physics: const BouncingScrollPhysics(), slivers: [
-          SliverPadding(padding: const EdgeInsets.fromLTRB(18, 12, 18, 130), sliver: SliverList(delegate: SliverChildListDelegate([
-            _buildHeader(), const SizedBox(height: 14), _buildAnnouncement(), const SizedBox(height: 12), _buildLogoHero(), const SizedBox(height: 14), _buildCreatePuzzleCard(), const SizedBox(height: 12), _buildQuickActions(), const SizedBox(height: 14), _buildQuoteBanner(), const SizedBox(height: 16), _buildChampionCard(), const SizedBox(height: 16), _buildRewardsCard(), const SizedBox(height: 16), _buildStatsCard(),
-          ]))),
-        ]),
-        Align(alignment: Alignment.bottomCenter, child: _buildBottomNavigation()),
-      ])),
-    );
+    return Scaffold(extendBody: true, backgroundColor: const Color(0xFF071B43), body: SafeArea(bottom: false, child: Stack(children: [
+      const _HomeBackground(),
+      CustomScrollView(physics: const BouncingScrollPhysics(), slivers: [SliverPadding(padding: const EdgeInsets.fromLTRB(18, 12, 18, 130), sliver: SliverList(delegate: SliverChildListDelegate([
+        _buildHeader(), const SizedBox(height: 14), _buildAnnouncement(), const SizedBox(height: 12), _buildLogoHero(), const SizedBox(height: 14), _buildCreatePuzzleCard(), const SizedBox(height: 12), _buildQuickActions(), const SizedBox(height: 14), _buildQuoteBanner(), const SizedBox(height: 16), _buildChampionCard(), const SizedBox(height: 16), _buildRewardsCard(), const SizedBox(height: 16), _buildStatsCard(),
+      ]))) ]),
+      Align(alignment: Alignment.bottomCenter, child: _buildBottomNavigation()),
+    ])));
   }
 
   Widget _buildHeader() => Row(children: [
