@@ -1,0 +1,26 @@
+name: Add puzzle screen banner ad
+on: push
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: python3 .github/scripts/add_puzzle_banner.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lib/screens/puzzle_screen.dart
+          git diff --cached --quiet && exit 0
+          git commit -m "Add banner ad to puzzle screen"
+          git push
+      - if: always()
+        run: |
+          git rm -f .github/workflows/add-puzzle-banner.yml .github/scripts/add_puzzle_banner.py || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || (git commit -m "Remove temporary puzzle banner workflow" && git push)
