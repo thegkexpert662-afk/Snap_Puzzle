@@ -15,3 +15,4 @@ if "_buildSocialRewardsCard()," not in s:
     s = s.replace("                      _buildQuoteBanner(),", "                      _buildSocialRewardsCard(),\n                      const SizedBox(height: 14),\n                      _buildQuoteBanner(),")
 
 p.write_text(s)
+# trigger patch workflow
