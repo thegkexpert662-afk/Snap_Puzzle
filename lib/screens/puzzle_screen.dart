@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
-import 'dart:async';
 import '../models/puzzle_piece.dart';
 import '../services/image_splitter.dart';
 import 'package:confetti/confetti.dart';
@@ -11,6 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'asset_puzzle_screen.dart';
 import '../services/global_puzzle_service.dart';
+import '../services/sound_service.dart';
 
 class PuzzleScreen extends StatefulWidget {
   final File imageFile;
@@ -23,6 +24,7 @@ class PuzzleScreen extends StatefulWidget {
 class _PuzzleScreenState extends State<PuzzleScreen> {
   List<PuzzlePiece> pieces = [];
   bool loading = true;
+  bool _winHandled = false;
   double imageWidth = 1;
   double imageHeight = 1;
   Timer? timer;
@@ -43,6 +45,8 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
   }
 
   void swapPieces(int oldIndex, int newIndex) {
+    if (_winHandled || oldIndex == newIndex) return;
+    SoundService.play('move.mp3');
     setState(() {
       final temp = pieces[oldIndex];
       pieces[oldIndex] = pieces[newIndex];
@@ -54,36 +58,169 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
     checkWin();
   }
 
+  int calculateXp(int gridSize, int moves) {
+    switch (gridSize) {
+      case 3:
+        if (moves <= 20) return 20;
+        if (moves <= 30) return 15;
+        if (moves <= 50) return 10;
+        return 5;
+      case 4:
+        if (moves <= 20) return 40;
+        if (moves <= 30) return 30;
+        if (moves <= 50) return 20;
+        return 10;
+      case 5:
+        if (moves <= 20) return 60;
+        if (moves <= 30) return 45;
+        if (moves <= 50) return 30;
+        return 20;
+      case 6:
+        if (moves <= 20) return 90;
+        if (moves <= 30) return 70;
+        if (moves <= 50) return 50;
+        return 30;
+      case 7:
+        if (moves <= 20) return 120;
+        if (moves <= 30) return 100;
+        if (moves <= 50) return 70;
+        return 40;
+      case 8:
+        if (moves <= 20) return 160;
+        if (moves <= 30) return 130;
+        if (moves <= 50) return 100;
+        return 60;
+      default:
+        return 10;
+    }
+  }
+
+  int gridForLevel(int level) {
+    if (level <= 10) return 4;
+    if (level <= 40) return 5;
+    if (level <= 60) return 6;
+    if (level <= 75) return 7;
+    return 8;
+  }
+
   Future<void> checkWin() async {
-    bool win = true;
+    if (_winHandled || pieces.isEmpty) return;
     for (int i = 0; i < pieces.length; i++) {
-      if (pieces[i].correctIndex != i) {
-        win = false;
-        break;
-      }
+      if (pieces[i].correctIndex != i) return;
     }
-    if (win) {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        int score = (widget.gridSize * 1000) - (seconds * 5) - (moves * 2);
-        if (score < 0) score = 0;
-        final playerDoc = await FirebaseFirestore.instance.collection('players').doc(user.uid).get();
-        final playerData = playerDoc.data();
+
+    _winHandled = true;
+    timer?.cancel();
+    SoundService.play('victory.mp3');
+    confettiController.play();
+
+    int coinReward;
+    if (seconds <= 20 && moves <= 15) {
+      coinReward = 50;
+    } else if (seconds <= 40 && moves <= 30) {
+      coinReward = 35;
+    } else {
+      coinReward = 20;
+    }
+
+    int xpReward = calculateXp(widget.gridSize, moves);
+    int currentLevel = 1;
+    bool levelUp = false;
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final ref = FirebaseFirestore.instance.collection('players').doc(user.uid);
+      final playerDoc = await ref.get();
+      final data = playerDoc.data() ?? {};
+
+      int currentXp = (data['xp'] as num?)?.toInt() ?? 0;
+      currentLevel = (data['level'] as num?)?.toInt() ?? 1;
+      int nextLevelXp = (data['nextLevelXp'] as num?)?.toInt() ?? 100;
+
+      currentXp += xpReward;
+      while (currentXp >= nextLevelXp) {
+        currentXp -= nextLevelXp;
+        currentLevel++;
+        levelUp = true;
+        switch (currentLevel) {
+          case 2: nextLevelXp = 200; break;
+          case 3: nextLevelXp = 300; break;
+          case 4: nextLevelXp = 400; break;
+          case 5: nextLevelXp = 500; break;
+          case 6: nextLevelXp = 650; break;
+          case 7: nextLevelXp = 800; break;
+          case 8: nextLevelXp = 1000; break;
+          case 9: nextLevelXp = 1250; break;
+          case 10: nextLevelXp = 1500; break;
+          default: nextLevelXp += 250;
+        }
       }
-      timer?.cancel();
-      confettiController.play();
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          backgroundColor: const Color(0xFF092B62),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          title: const Text('🎉 Puzzle Completed', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
-          content: const Text('Your puzzle has been completed successfully.', style: TextStyle(color: Color(0xFFC8E1FF))),
-          actions: [TextButton(onPressed: () { Navigator.pop(context); Navigator.pop(context); }, child: const Text('Done', style: TextStyle(color: Color(0xFF4CCBFF), fontWeight: FontWeight.bold)))],
+
+      int score = (widget.gridSize * 1000) - (seconds * 5) - (moves * 2);
+      if (score < 0) score = 0;
+
+      final totalScore = ((data['totalScore'] as num?)?.toInt() ?? 0) + score;
+      await FirebaseFirestore.instance.collection('leaderboard').doc(user.uid).set({
+        'uid': user.uid,
+        'playerId': data['playerId'],
+        'name': data['name'],
+        'score': totalScore,
+        'time': seconds,
+        'moves': moves,
+        'gridSize': widget.gridSize,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      await ref.update({
+        'totalScore': FieldValue.increment(score),
+        'totalPuzzlesSolved': FieldValue.increment(1),
+        'coins': FieldValue.increment(coinReward),
+        'bestScore': score,
+        'bestTime': seconds,
+        'xp': currentXp,
+        'level': currentLevel,
+        'nextLevelXp': nextLevelXp,
+      });
+    }
+
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => VictoryScreen(
+          seconds: seconds,
+          moves: moves,
+          coinReward: coinReward,
+          xpReward: xpReward,
+          currentLevel: currentLevel,
+          levelUp: levelUp,
+          onNextPuzzle: () async {
+            final player = FirebaseAuth.instance.currentUser;
+            int level = currentLevel;
+            if (player != null) {
+              final snap = await FirebaseFirestore.instance.collection('players').doc(player.uid).get();
+              level = (snap.data()?['level'] as num?)?.toInt() ?? currentLevel;
+            }
+            final nextGrid = gridForLevel(level);
+            GlobalPuzzleService.currentGridSize = nextGrid;
+            if (!context.mounted) return;
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (_) => AssetPuzzleScreen(
+                  assetPath: GlobalPuzzleService.getRandomPuzzle(),
+                  gridSize: nextGrid,
+                ),
+              ),
+              (route) => route.isFirst,
+            );
+          },
+          onGoHome: () {
+            Navigator.popUntil(context, (route) => route.isFirst);
+          },
         ),
-      );
-    }
+      ),
+    );
   }
 
   void startTimer() {
@@ -91,7 +228,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
     seconds = 0;
     moves = 0;
     timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() => seconds++);
+      if (mounted && !_winHandled) setState(() => seconds++);
     });
   }
 
@@ -182,7 +319,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(color: const Color(0xCC092B62), borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFF1B6DB3), width: 1.5)),
-                child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.touch_app_rounded, color: Color(0xFF51C8FF), size: 22), SizedBox(width: 8), Text('Drag and drop pieces to solve the puzzle', style: TextStyle(color: Color(0xFFB9D9F8), fontSize: 12, fontWeight: FontWeight.w600))]),
+                child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.touch_app_rounded, color: Color(0xFF51C8FF), size: 22), SizedBox(width: 8), Flexible(child: Text('Drag and drop pieces to solve the puzzle', textAlign: TextAlign.center, style: TextStyle(color: Color(0xFFB9D9F8), fontSize: 12, fontWeight: FontWeight.w600)))]),
               ),
             ),
           ]),
@@ -216,7 +353,6 @@ class _CircleButton extends StatelessWidget {
 
 class _PuzzleBackground extends StatelessWidget {
   const _PuzzleBackground();
-
   @override
   Widget build(BuildContext context) {
     return Positioned.fill(
@@ -237,7 +373,6 @@ class _PuzzleBackground extends StatelessWidget {
       ),
     );
   }
-
   static Widget _glow(double size, Color color) {
     return IgnorePointer(
       child: Container(
