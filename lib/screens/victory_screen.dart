@@ -66,7 +66,7 @@ class VictoryScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   _ActionButton(label: 'Home', icon: Icons.home_rounded, colors: const [Color(0xFF23B9FF), Color(0xFF1457D6)], onTap: onGoHome),
                   const SizedBox(height: 12),
-                  SizedBox(width: double.infinity, height: 56, child: OutlinedButton.icon(onPressed: () {}, icon: const Icon(Icons.share_rounded), label: const Text('Share Score', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)), style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Color(0xFF4C82BA, width: 1.5)), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18))))),
+                  SizedBox(width: double.infinity, height: 56, child: OutlinedButton.icon(onPressed: () {}, icon: const Icon(Icons.share_rounded), label: const Text('Share Score', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)), style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Color(0xFF4C82BA), width: 1.5), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18))))),
                 ],
               ),
             ),
