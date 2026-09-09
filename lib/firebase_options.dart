@@ -5,15 +5,6 @@ import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
-///
-/// Example:
-/// ```dart
-/// import 'firebase_options.dart';
-/// // ...
-/// await Firebase.initializeApp(
-///   options: DefaultFirebaseOptions.currentPlatform,
-/// );
-/// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -53,9 +44,11 @@ class DefaultFirebaseOptions {
     measurementId: 'G-SD38PECXG0',
   );
 
+  // Must match the Android Firebase app registered for
+  // com.kopersay.snappuzzle in android/app/google-services.json.
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCysSNUFxJf65vyiZYxoJtXJeBv_Ig1CEE',
-    appId: '1:753080154054:android:762c09b25259371f3464c7',
+    appId: '1:753080154054:android:46e80705ef821b3b3464c7',
     messagingSenderId: '753080154054',
     projectId: 'snap-pazzel',
     storageBucket: 'snap-pazzel.firebasestorage.app',
