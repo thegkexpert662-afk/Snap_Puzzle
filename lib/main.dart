@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/home_screen.dart';
 import 'firebase_options.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'screens/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +38,9 @@ class PhotoPuzzleApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Snap Pazzel',
-      home: const HomeScreen(),
+      home: FirebaseAuth.instance.currentUser != null
+          ? const HomeScreen()
+          : const LoginScreen(),
     );
   }
 }
